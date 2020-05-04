@@ -10,8 +10,7 @@ class misc():
     vibrate,
     contactlist,
     torch,
-    downloadFile,
-    telephonycall
+    downloadFile
     '''
     def __init__(self):
         pass
@@ -24,17 +23,17 @@ class misc():
         return self.batteryvalue["output"]
         
 
-    def brightness(self,Brightness: int):
+    def brightness(self,Brightness):
         '''
         Set the brightness of your device.
         It takes argument Brightness (int)
-        from 0 to 255.
+        from 0 to 100.
         '''
         self.Brightness=Brightness
         self.brightvalue=t.compute(f"termux-brightness {self.Brightness}")
         return self.brightvalue["output"]
 
-    def vibrate(self,duration: int =1000):
+    def vibrate(self,duration=1000):
         '''
         vibrates your phone.
         Default duration is 1000ms.
@@ -51,8 +50,15 @@ class misc():
         self.cvalue=t.compute("termux-contact-list")
         return self.cvalue["output"]
 
+    def call(self,number):
+        '''
+        Calls a phone number.
+        '''
+        self.number=number
+        return t.compute(f"termux-telephony-call {self.number}")["output"]
 
-    def torch(self,switch: bool =False):
+
+    def torch(self,switch=False):
         '''
         Toggles the torch on/off
         Takes argument as:
@@ -68,7 +74,7 @@ class misc():
             return self.torchvalue["output"]
 
 
-    def downloadFile(self,description: str ="From termux",title: str ="Download",url: str =" "):
+    def downloadFile(self,description="From termux",title="Download",url=" "):
         '''
         This is the method for downloading anything 
         from the internet.
@@ -83,16 +89,15 @@ class misc():
         self.downloadF=t.compute(f"termux-download -t {self.title} {self.url}")
         return self.downloadF["output"]
 
-    def telephonycall(self,phone_number :str):
-        '''
-        This is the method which takes an 
-        argument phone_number, to which it
-        makes a phone call.
-        '''
-        self.phone_number=phone_number
-        self.calling=t.compute(f"termux-telephony-call {self.phone_number}")
-        return self.calling["output"]
 
+    def fingerprint(self):
+        '''
+        This method uses the fingerprint
+        scanner for authentication. It
+        returns success or failure in JSON. 
+        '''
+        self.result=t.compute("termux-fingerprint")["output"]
+        return self.result["output"]
 
 class tts():
     '''
@@ -120,7 +125,7 @@ class tts():
             eng="com.google.android.tts",
             lang="eng",
             regn="",
-            varient="",
+            variant="",
             pitch=1.0,
             rate=1.0,
             stream="",
@@ -135,7 +140,7 @@ class tts():
             text: text to speak
             #for now this feature isn't set
             regn: region            
-            varient: varient 
+            variant: variant 
             stream: stream 
         for more info visit [termux wiki](https://wiki.termux.com/wiki/Termux-tts-speak)
         '''
@@ -143,7 +148,7 @@ class tts():
         self.eng=eng
         self.lang=lang
         self.regn=regn
-        self.varient=varient
+        self.variant=variant
         self.pitch=pitch
         self.rate=rate
         self.stream=stream
@@ -198,7 +203,7 @@ class clipboard:
         '''
         self.value=t.compute("termux-clipboard-get")
         return self.value["output"]
-    def clipboardSet(self,readval: str =" "):
+    def clipboardSet(self,readval=" "):
         '''
         The clipboardSet method is to be used 
         when required to store value in the
@@ -280,6 +285,34 @@ class volume:
         return self.value["output"]
 
 
+
+class notification:
+    '''
+    The class notification has two methods:
+    - notification
+    - removeNotification
+    '''
+    def __init__(self):
+        pass
+    def notification(self,title="title",content="content", *args, **kwargs):
+        '''
+        This method creates a notification. 'title' and
+        'content' are mandatory, and all other flags in
+        termux-notification are optional arguments
+        '''
+        cargs=[]
+        for i in args:
+            cargs.append(f"--{i}")
+        for i in kwargs:
+            cargs.append(f"-{i} {kwargs[i]}" if len(i) == 1 else f"--{i} {kwargs[i]}") 
+        self.value=t.compute(f"temux-notification -t {title} -c {content} {' '.join(cargs)}")
+    def removeNotification(self,id):
+        '''
+        This method removes a notification by the id
+        supplied as an argument
+        '''
+        self.value=t.compute(f"termux-notification-remove {id}")
+        return self.value["output"]
 
 
 
